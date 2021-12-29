@@ -16,7 +16,7 @@ I'm going to go over setting up the pi, installing sonarr and installing sabnzbd
 
 SETTING UP THE RASPBERRY PI
 
-1. Get your raspberry pi and install Raspberry PiOS by using the imager provided
+1. ``Get your raspberry pi and install Raspberry PiOS by using the imager provided``
 
 https://www.raspberrypi.com/software/
 
