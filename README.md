@@ -183,7 +183,6 @@ Useful systemctl commands
 `sudo journalctl -u sabnzbd -f` shows the logs for this 
 `systemctl daemon-reload` reloads the daemon, do this to incorporate any change to the service i.e. after writing the above file.
 
-
 5. Updating
 
 Updating is as simple as stopping the server then downloading the newer version then mving it to /opt/sabnzbd/server and restarting. 
@@ -191,4 +190,15 @@ Updating is as simple as stopping the server then downloading the newer version 
 
 SONARR
 
-1. 
+1. Again hassle here is to install mono which Sonarr runs on
+
+`sudo apt -y install apt-transport-https dirmngr gnupg ca-certificates`
+`sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF`
+`sudo sh -c 'echo "deb https://download.mono-project.com/repo/debian stable-buster main" > /etc/apt/sources.list.d/mono-official-stable.list'`
+`sudo apt -y update ; sudo apt -y install mono-devel mediainfo sqlite3 libmono-cil-dev libchromaprint-tools`
+`sudo apt install mono-complete`
+
+Now create folders and install mediainfo
+`sudo mkdir /opt/sonarr ; sudo chown pi:pip /opt/sonarr ; cd /opt/sonarr ; `
+`wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-19_all.deb && sudo dpkg -i repo-mediaarea_1.0-19_all.deb && sudo apt-get update`
+
