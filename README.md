@@ -148,9 +148,45 @@ b. Test all your server details; saves hassles later. try to use SSL
 c. Change the temp and completed folders to /opt/share/tmp and /opt/share/downloads respectively. 
 d. you can add a watched folder too
 e. In switches i activate "Pause Downloading During Post-Processing" and integrate reporting with my indexer "Enable Indexer Integration". You don't need to.
-f. 
+f. Add in RSS if that is the way you download
+
+Test the server works.
+
+4. Making it automatically restart
+
+I use systemd as its my preference. You don't need to do this but if the server restarts you'll need to manually run the big line above.
+`sudo nano /etc/systemd/system/sabnzbd.service`
+
+Add in the below
+
+`[Unit]
+Description=SABnzbd
+After=multi-user.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+Restart=always
+ExecStart=/usr/bin/python3 /opt/sabnzbd/server/SABnzbd.py -b 0 -f /opt/sabnzbd/ini/
+ExecStop=/usr/bin/curl -s "http://localhost:9090/sabnzbd/api?mode=shutdown&apikey=627978c144394af78391398fe82b223f"
+
+[Install]
+WantedBy=multi-user.target`
+
+This will install the service. 
+
+Useful systemctl commands
+`sudo systemctl stop sabnzbd.service` stops the service
+`sudo systemctl start sabnzbd.service` starts the service
+`sudo systemctl restart sabnzbd.service` restarts
+`sudo journalctl -u sabnzbd -f` shows the logs for this 
+`systemctl daemon-reload` reloads the daemon, do this to incorporate any change to the service i.e. after writing the above file.
 
 
+5. Updating
+
+Updating is as simple as stopping the server then downloading the newer version then mving it to /opt/sabnzbd/server and restarting. 
 
 
 SONARR
