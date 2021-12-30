@@ -199,6 +199,47 @@ SONARR
 `sudo apt install mono-complete`
 
 Now create folders and install mediainfo
-`sudo mkdir /opt/sonarr ; sudo chown pi:pip /opt/sonarr ; cd /opt/sonarr ; `
-`wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-19_all.deb && sudo dpkg -i repo-mediaarea_1.0-19_all.deb && sudo apt-get update`
+`sudo mkdir /opt/sonarr ; sudo chown pi:pip /opt/sonarr ; cd /opt/sonarr ; mkdir mediainfo ; cd mediainfo`
+`wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-19_all.deb && sudo dpkg -i repo-mediaarea_1.0-19_all.deb && sudo apt-get update ; rm -rf /opt/sonarr/mediainfo/`
+
+Now get Sonarr and fix perms and move to right place
+`curl -sL "https://services.sonarr.tv/v1/download/phantom-develop/latest?version=3&os=linux" -o /tmp/Sonarr.tgz ; sudo tar xvzf /tmp/Sonarr.tgz -C /opt/sonarr/ ; sudo chown -R pi:pi /opt/sonarr/ ; mv /opt/sonarr/Sonarr/* /opt/sonarr/server; mkdir /opt/sonarr/ini ; rmdir /opt/sonarr/Sonarr`
+
+Finally setup the systemd file
+`[Unit]
+Description=Sonarr Daemon
+After=network.target
+
+[Service]
+# Change and/or create the required user and group.
+User=pi
+Group=pi
+
+ExecStart=/usr/bin/mono --debug /opt/sonarr/server/Sonarr.exe -nobrowser -data=/opt/sonarr/ini/
+
+Type=simple
+TimeoutStopSec=20
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target`
+
+Now enable the service
+`sudo systemctl daemon-reload ; sudo systemctl enable sonarr.service ; sudo systemctl start sonarr.service ; sudo journalctl -u sonarr -f`
+this will dump you into the logs while it all starts. Once its working go to the browser and do what you need to. The default port is 8989.
+
+MOUNTING EXTERNAL DRIVES AND AUTOMOUNT
+
+These are more notes for me, i hope they are useful to somone.
+
+//servername/Folder /folder/folder/local cifs credentials=/home/pi/.smbcredentials,vers=2.1,uid=33,gid=33,rw,nounix,iocharset=utf8,file_mode=0777,dir_mode=0777 0 0
+
+.smbcredentials should be
+
+user=
+password=
+
+then run `chmod o-rwx,-x ~/.smbcredentials`
+
 
