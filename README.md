@@ -75,3 +75,84 @@ There will be:
 /opt/mono <----this is the software that runs Sonarr
 /opt/share <----this will have all the files and will be accessible via Samba as this is useful to move things
 
+There will be individual service files and instructions on how to update things.
+
+SabnzBD
+
+Mostly from 
+https://sabnzbd.org/wiki/installation/install-off-modules
+
+
+1. install various bits and bobs
+`sudo apt-get update; sudo apt-get install python3-pip par2 unzip p7zip-full`
+
+2. OK hassle point. You need non free unrar....sooo
+unrar
+To do this we have first to add the source repository to apt
+`sudo nano /etc/apt/source.list`
+
+and add this entry at the end
+deb-src http://raspbian.raspberrypi.org/raspbian/ bullseye main contrib non-free rpi
+(it might have a # in front of it, just remove the # and save it)
+
+Update apt
+`sudo apt-get update`
+
+Let’s create a new folder for download and compile unrar
+mkdir ~/unrar && cd ~/unrar
+
+Tell apt to install the needed dependencies required by unrar
+`sudo apt-get build-dep unrar-nonfree`
+
+Download unrar sources and build the package
+`sudo apt-get source -b unrar-nonfree`
+
+Grab a coffee and wait the end of process… At the end we can install the package generated (x.x.x-x report the version)
+sudo dpkg -i unrar_x.x.x-x_armhf.deb
+
+well done. `unrar` now works! 
+
+3. Sabnzbd installation
+
+Make the /opt dir and own it
+`mkdir /opt/sabnzbd /opt/share; sudo chown pi:pi /opt/*; cd /opt/sabnzbd/`
+
+Go to sabnzbd.org Downloads and get the latest version
+https://sabnzbd.org/downloads
+`wget https://github.com/sabnzbd/sabnzbd/releases/download/3.4.2/SABnzbd-3.4.2-src.tar.gz`
+do remember to substitute the latest Linux version (should be a .tar.gz ending)
+
+Now untar it and 
+
+`tar -xvf SABnzbd-3.4.2-src.tar.gz`
+`cd SABnzbd-3.4.2; mkdir ../server ; mv * ../server/` 
+Don't forget to change to latest version here. The last command moves all the files to a folder called server. 
+
+Now install it using python pip
+`python3 -m pip install -r requirements.txt -U`
+
+Its done now. Well done.
+`/usr/bin/python3 /opt/sabnzbd/server/SABnzbd.py -s 0.0.0.0:9090 -f /opt/sabnzbd/ini/ -d` 
+
+will run the server. We will do this while setting up the server.
+
+Now login to the server with your browser by going to 
+`servername.local:9090`
+
+If you get a weird hostname error, you will need to edit sabnzbd.ini located in /opt/sabnzbd/ini/ and find the "host_whitelist"
+https://sabnzbd.org/wiki/extra/hostname-check.html
+
+I'm going to go fairly light touch here but include a checklist.
+a. Make "download" and "tmp" directories in share. download will have final downloads and tmp will be for files as they download. We will share both so you can use a network share to see the files. Useful to debug, delete, etc.
+b. Test all your server details; saves hassles later. try to use SSL
+c. Change the temp and completed folders to /opt/share/tmp and /opt/share/downloads respectively. 
+d. you can add a watched folder too
+e. In switches i activate "Pause Downloading During Post-Processing" and integrate reporting with my indexer "Enable Indexer Integration". You don't need to.
+f. 
+
+
+
+
+SONARR
+
+1. 
