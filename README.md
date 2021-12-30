@@ -233,7 +233,10 @@ MOUNTING EXTERNAL DRIVES AND AUTOMOUNT
 
 These are more notes for me, i hope they are useful to somone.
 
+Fstab entry 
 //servername/Folder /folder/folder/local cifs credentials=/home/pi/.smbcredentials,vers=2.1,uid=33,gid=33,rw,nounix,iocharset=utf8,file_mode=0777,dir_mode=0777 0 0
+
+use mount -a to reload fstab
 
 .smbcredentials should be
 
@@ -241,5 +244,90 @@ user=
 password=
 
 then run `chmod o-rwx,-x ~/.smbcredentials`
+
+SAMBA
+
+Lets get a samba server going. Thinakfully this one is quite simple. 
+`sudo apt update ; sudo apt install samba samba-common-bin`
+
+Edit the smb conf to get things started
+`sudo nano /etc/samba/smb.conf`
+
+The config will be complicated but look at this. put the following right at the end.
+
+[SHARE]
+path = /opt/share/
+comment = the directory for all the files
+browseable = yes
+writeable = yes
+only guest = no
+create mask = 0777
+directory mask = 0777
+public = yes
+guest ok = yes
+
+then run `testparm` and make sure there are no errors
+
+Create a Samba password for whichever user you will be using:
+
+`sudo smbpasswd -a pi`
+
+I just use the same password but you can use something different.
+
+The service file is already written so just enable
+`systemctl daemon-reload ; sudo service smbd restart ; sudo service smbd restart`
+
+Make sure its running fine by using
+`sudo systemctl enable smbd.service ; sudo systemctl enable nmbd.service`
+
+then
+
+`sudo journalctl -u nmbd -f`
+`sudo journalctl -u smbd -f`
+
+
+WSSD
+this is needed to see teh share in windows for variosu boring reasons.
+
+`cd /opt ; sudo mkdir /opt/wsdd ; sudo chmod pi:pi /opt/wsdd ; cd wsdd`
+
+then download the py file
+
+`wget --no-check-certificate --content-disposition https://raw.githubusercontent.com/christgau/wsdd/master/src/wsdd.py`
+
+
+create a service file
+
+`sudo nano /etc/systemd/system/wsdd.service`
+
+`[Unit]
+Description=WSDD Daemon (Web Services Dynamic Discovery)
+After=network.target
+
+[Service]
+# Change and/or create the required user and group.
+User=pi
+Group=pi
+
+ExecStart=/opt/wsdd/wsdd.py --shortlog
+Type=simple
+TimeoutStopSec=20
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target`
+
+run the daemon. then activate the service file etc
+
+`/opt/wsdd/wsdd.py --shortlog -v`
+the -v is to check if all is well. 
+
+Now reload `systemctl daemon-reload` 
+`sudo systemctl restart wsdd.service` restarts
+`sudo journalctl -u wsdd -f` shows the logs for this 
+`sudo systemctl enable wsdd.service` enables i.e. it starts on a reboot
+
+
 
 
